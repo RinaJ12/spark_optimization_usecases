@@ -13,7 +13,7 @@ Found 3 items
 -rw-r--r--   1 cloudera cloudera      2.1 G 2018-04-12 11:37 kiva_analytics/data/loans1.csv
 -rw-r--r--   1 cloudera cloudera      2.1 G 2018-04-12 11:38 kiva_analytics/data/loans2.csv
 
-val input = sqlContext.format("com.databricks.spark.csv").option("header","true").option("inferSchema","true").load("kiva_analytics/data")
+val input = sqlContext.read.format("com.databricks.spark.csv").option("header","true").option("inferSchema","true").load("kiva_analytics/data")
 
 total 51 tasks were launched as there are 51 blocks(each block of size 128 MB)
 

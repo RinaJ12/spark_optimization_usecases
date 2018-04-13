@@ -1,11 +1,7 @@
-============================================================================================================================================================
-Usecase : 2 total 6.4 gb data, 1 node manager ,7 gb memory,8 vcores : balanced resources
-============================================================================================================================================================
-
 spark-shell --packages com.databricks:spark-csv_2.10:1.5.0 --num-executors 3 --executor-memory 1024m --executor-cores 2
 
-Trying to take advantage of tiny and fat executors
-reason to set 3 executors: 
+Trying to take an advantage of tiny and fat executors
+Reasons to set 3 executors: 
 -Even data distribution as there are three input files
 -All cores will be utilized as (1 for AM,6 for executors)
 -Not more than 1 gb memory is needed as each block is of size 128 mb only so 300mb is more than enough for each task

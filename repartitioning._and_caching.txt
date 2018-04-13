@@ -1,11 +1,17 @@
 ============================================================================================================================================================
-Usecase : 3 filter data : Need of repartitioning data
+Usecase : 3 filter data : Need of repartitioning the data
 ============================================================================================================================================================
  val input_filter = input.filter("sector_name!='Arts' AND sector_name!='Manufacturing' AND sector_name!='Retail' AND sector_name!='Personal Use' AND sector_name!='Services'") // 3.8 gb size
  
+ **************Caching***************************
+ Count operation
  =>before caching  time taken to count input_filter = 1.9 min
+ input_filter.groupBy(to_date(col("posted_time")).alias("formatted_date")).agg(count(col("loan_id")).alias("total_loans")).show => 2.3 min
  
+ 
+ =>after caching RDD
  input_filter.cache => 4 gb size => 1.5 gb(memory)+ 2.5 gb (serialized & disk spill) => filter took avg 25 sec
+ 
  ---------------------------------------------------------------------------------------------------------------------
  input_filter.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK_SER) //Memory Serialized 1x Replicated 
  
@@ -21,6 +27,27 @@ so only one task will be launched and it will be able to handle 3.8 gb of data.
  
  input_filter : 2802444 = 2.8 millions
  =>above filtered data is not evenly distributed so performing any operation on this would take longer than evenly distributed data
- =>As spark outperform on evenly distributed data.
+ =>As spark outperforms on evenly distributed data.
  
  input_filter.write.text("kiva_analytics/need_to_reparition")
+ 
+ 
+  **************repartitioning***************************
+  =>before repartitiong the input_filter RDD => 51 partitions
+    
+	input_filter.groupBy(to_date(col("posted_time")).alias("formatted_date")).agg(count(col("loan_id")).alias("total_loans")).show
+	=> 47 sec
+	=>total_parititons
+	input_filter.unpersist
+	
+  =>after repartitio the input_filter RDD => 32 paritions
+  
+  val input_filter_repart = input_filter.repartition(32)
+	input_filter_repart.show
+	
+	input_filter_repart.cache
+	
+	input_filter_repart.count => 21 sec
+	input_filter_repart.groupBy(to_date(col("posted_time")).alias("formatted_date")).agg(count(col("loan_id")).alias("total_loans")).show
+	=> 23 sec half compare to  before reparittioning
+	
