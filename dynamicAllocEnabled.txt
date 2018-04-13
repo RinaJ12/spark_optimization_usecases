@@ -1,0 +1,23 @@
+============================================================================================================================================================
+Usecase : 1 total 6.4 gb data, 1 node manager ,7 gb memory,8 vcores,spark.dynamicAllocation.enabled = true : poorly bala resources
+============================================================================================================================================================
+Total 4 executors were launched (1 gb 1 core)
+Data was not evenly distributed
+max gc time = 14 second 
+min gc time : 32 ms
+total time to finish data loading  : 4.1 min
+
+[cloudera@quickstart ~]$ hadoop fs -ls -h kiva_analytics/data
+Found 3 items
+-rw-r--r--   1 cloudera cloudera      2.1 G 2018-04-05 15:17 kiva_analytics/data/loans.csv
+-rw-r--r--   1 cloudera cloudera      2.1 G 2018-04-12 11:37 kiva_analytics/data/loans1.csv
+-rw-r--r--   1 cloudera cloudera      2.1 G 2018-04-12 11:38 kiva_analytics/data/loans2.csv
+
+val input = sqlContext.format("com.databricks.spark.csv").option("header","true").option("inferSchema","true").load("kiva_analytics/data")
+
+total 51 tasks were launched as there are 51 blocks(each block of size 128 MB)
+
+cons:
+-It did not take advantage of running multiple taks parallely in sigle JVM
+-Data was not evenly distributed
+-only 3 tasks running at a time
